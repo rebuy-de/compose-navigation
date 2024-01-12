@@ -19,3 +19,10 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# To have the navigation working with reflaction we have to use keep the classes
+-keep class com.katajona.composenavigation.navigation.destinations.NavRoute { *; }
+-keep class com.katajona.composenavigation.navigation.destinations.SettingsScreens { *; }
+-keep class com.katajona.composenavigation.navigation.destinations.SettingsScreens$* { *; }
+-keep class com.katajona.composenavigation.navigation.destinations.HomeScreens { *; }
+-keep class com.katajona.composenavigation.navigation.destinations.HomeScreens* { *; }

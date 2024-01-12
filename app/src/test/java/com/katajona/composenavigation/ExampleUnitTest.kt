@@ -1,17 +1,36 @@
 package com.katajona.composenavigation
 
+import com.katajona.composenavigation.navigation.NavigationType
+import com.katajona.composenavigation.navigation.destinations.HomeScreens
+import com.katajona.composenavigation.navigation.destinations.SettingsScreens
+import com.katajona.composenavigation.screens.SettingsScreen
 import org.junit.Test
 
 import org.junit.Assert.*
 
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
 class ExampleUnitTest {
+
+    private var router = RouterMock()
+
     @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+    fun `NavigateTo Settings Test`() {
+        router.dispatch(NavigationType.NavigateTo(SettingsScreens.Settings.get()))
+        router.assert<NavigationType.NavigateTo> {
+            it.target == SettingsScreens.Settings.get()
+        }
+    }
+
+    @Test
+    fun `NavigateTo ExtraData Test`() {
+        router.dispatch(NavigationType.NavigateTo(HomeScreens.ExtraData.get("test", 3)))
+        router.assert<NavigationType.NavigateTo> {
+            it.target == HomeScreens.ExtraData.get("test", 3)
+        }
+    }
+
+    @Test
+    fun `NavigateUp Test`() {
+        router.dispatch(NavigationType.NavigateUp)
+        router.assert<NavigationType.NavigateUp>()
     }
 }

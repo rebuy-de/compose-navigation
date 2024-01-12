@@ -12,23 +12,23 @@ However, if there is a need to pass complex data between screens, you can use `S
 ## The Goal
 
 By the end of this guide, you will have the capability to seamlessly navigate between screens, dialogs, and even bottom sheets with just a single line:
-```
+```kotlin
 router.dispatch(NavigationType.NavigateTo(SettingsScreens.Register.get()))
 ```
 Or if you want to also pass in some parameters then like this:
-```
+```kotlin
 router.dispatch(NavigationType.NavigateTo(HomeScreens.ExtraData.get("MyTitle", 5)))
 ```
 What about navigating back? Easy:
-```
+```kotlin
 router.dispatch(NavigationType.NavigateUp)
 ```
 Deeplinks? No problem:
-```
+```kotlin
 router.dispatch(NavigationType.DeeplinkTo("deeplink://extra?text=Title%20name&count=20"))
 ```
 Snackbars? Sure:
-```
+```kotlin
 router.dispatch(NavigationType.Snackbar("Show my pretty snackbar"))
 ```
 
@@ -38,7 +38,7 @@ In the end, only your imagination limits what these actions can achieve. You can
 
 Initially, we need to construct a catalog of our screens, which we can utilize in the future for navigating to specific screens. To establish this catalog, I have created the following interface:
 
-```
+```kotlin
 private const val uri = "deeplink://"
 sealed interface NavRoute {
 
@@ -55,7 +55,7 @@ sealed interface NavRoute {
 ```
 Now, all of our navigation destinations should implement this interface, here is on easy example without arguments:
 
-```
+```kotlin
 data object Home : NavRoute {
     override val route = Route(this)
     fun get(): NavigationDestination = route.getRouteWithParams()
@@ -70,7 +70,7 @@ Basically, you need to override the `getScreen()` function, which initializes yo
 
 Concerning scenarios involving arguments, it is imperative to define all the arguments and their respective types. Additionally, you must ensure that these parameters are added into your navigation route. This means adding them as constructor parameters to the Route and creating a corresponding `get()` function with the specified arguments.
 
-```
+```kotlin
 data object ExtraData : NavRoute {
     private const val textParam = "text"
     private const val countParam = "count"
@@ -122,7 +122,7 @@ If you also want to be able to navigate to a bottom sheet you could use the  [ac
 ### Deeplinks
 
 If you also want to make it possible to deeplink into the page then you should add a `deeplinks` parameter to the router like this:
-```
+```kotlin
 override val route = Route(
     this,
     textParam,
@@ -140,7 +140,7 @@ After this you will be able to navigate to the the screen using the following de
 
 ## The routing
 The code for the `Router` is quite simple. It is basically just a channel with a dispatch function:
-```
+```kotlin
 open class Router : CoroutineScope by CoroutineScope(Dispatchers.Main) {
     private val _eventChannel = Channel<NavigationType>(Channel.BUFFERED)
     val sharedFlow = _eventChannel.receiveAsFlow()
@@ -154,7 +154,7 @@ open class Router : CoroutineScope by CoroutineScope(Dispatchers.Main) {
 ```
 
 And the router expect `NavigationType` to be dispatched. In this example our navigation support the following actions:
-```
+```kotlin
 sealed class NavigationType {
     data class DeeplinkTo(val href: String) : NavigationType()
     data class NavigateTo(val target: NavigationDestination, val navOptions: NavOptions? = null) : NavigationType()
@@ -177,14 +177,14 @@ sealed class NavigationType {
 At one point you have to register the classes we created at the `NavHost`. For this I decided to use reflection, to make sure nobody ever forgets to register a class.
 To use reflection we have to add `implementation(kotlin("reflect"))` to our `gradle.kts` file.
 After having reflection in the project you can just create this simple extension function:
-```
+```kotlin
 fun NavGraphBuilder.registerScreens() {
     NavRoute::class.sealedSubclasses.forEach { it.objectInstance?.getScreen(this) }
 }
 ```
 It will go through all of the classes that are implementing `NavRoute` class and call their `getScreen()` function.
 after this you can just call this function in the `NavHost`:
-```
+```kotlin
 NavHost(
     modifier = modifier,
     navController = navController,
@@ -198,7 +198,7 @@ NavHost(
 
 #### NavGraphBuilder extensions
 As mentioned above the `getScreen` can use `navGraph.composable(this)`, `navGraph.dialog(this)` or `navGraph.bottomSheet(this)` for this I wrote the following extension function to avoid some tedious work:
-```
+```kotlin
 @OptIn(ExperimentalMaterialNavigationApi::class)
 fun NavGraphBuilder.bottomSheet(
     navRoute: NavRoute,
@@ -241,7 +241,7 @@ fun NavGraphBuilder.dialog(
 
 The last peace of the puzzle is to make our `NavHostController` to react on the actions that arrive when we call the `router.dispatch(navTarget: NavigationType)` function. For this we have to create a launched effect inside the `MainActivity` `setContent` that looks like this:
 
-```
+```kotlin
 @Composable
 fun ListenToNavigation(
     navController: NavHostController,
@@ -300,7 +300,7 @@ fun ListenToNavigation(
 ```
 
 ## Logic behind creating the route
-```
+```kotlin
 class Route(baseRoute: NavRoute, vararg parameters: String, val deepLinks: List<String>? = null) {
     val routeWithParams: String
     private val routeName = baseRoute::class.java.canonicalName?.split(".")?.takeLast(2)?.joinToString(".") ?: ""
@@ -328,7 +328,7 @@ class Route(baseRoute: NavRoute, vararg parameters: String, val deepLinks: List<
 }
 ```
 This class will generate all the navigation routes, meaning you don't have to worry about the naming. Currently, it expects that the `NavRoutes` are part of one or more collector objects. I prefer placing them in multiple files to avoid creating giant files.
-```
+```kotlin
 object HomeScreens {
     data object Home: NavRoute ..
     data object ExtraData: NavRoute ..
@@ -344,7 +344,7 @@ In the following scenario, the route name for home will be `HomeScreens.Home`. I
 ## Testing
 
 An another advantage of making it possible to navigate from everywhere is testing. Now we are able to unit test the navigation. For this we can use the following mock object:
-```
+```kotlin
 class RouterMock : Router() {
     var collectedActions: MutableList<NavigationType> = mutableListOf()
 
@@ -384,7 +384,7 @@ class RouterMock : Router() {
 ```
 
 And then we can test the navigation the following way:
-```
+```kotlin
 router.assert<NavigationType.NavigateTo> {
     it.target == HomeScreens.ExtraData.get("test", 3)
 }

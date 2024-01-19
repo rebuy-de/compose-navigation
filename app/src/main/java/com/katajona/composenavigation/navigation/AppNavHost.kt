@@ -43,54 +43,15 @@ fun AppNavHost(
         }
     }
 }
-
-@OptIn(ExperimentalMaterialNavigationApi::class)
-fun NavGraphBuilder.bottomSheet(
-    navRoute: NavRoute,
-    content: @Composable ColumnScope.(backstackEntry: NavBackStackEntry) -> Unit,
-) {
-    bottomSheet(
-        route = navRoute.route.routeWithParams,
-        arguments = navRoute.getArguments(),
-        deepLinks = navRoute.getDeepLinks(),
-        content = content
-    )
-}
-
-fun NavGraphBuilder.composable(
-    navRoute: NavRoute,
-    content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit,
-) {
-    composable(
-        route = navRoute.route.routeWithParams,
-        arguments = navRoute.getArguments(),
-        deepLinks = navRoute.getDeepLinks(),
-        content = content
-    )
-}
-
-fun NavGraphBuilder.dialog(
-    navRoute: NavRoute,
-    content: @Composable (NavBackStackEntry) -> Unit,
-) {
-    dialog(
-        route = navRoute.route.routeWithParams,
-        arguments = navRoute.getArguments(),
-        deepLinks = navRoute.getDeepLinks(),
-        content = content
-    )
-}
-
-
 @Composable
 fun BottomNavigation(navController: NavController) {
     val items = listOf(HomeScreens.Home, SettingsScreens.Settings)
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
-    val selected = items.find { it.route.routeWithParams == currentDestination?.route } ?: return
+    val selected = items.find { it.getRouteUrlWithParams() == currentDestination?.route } ?: return
     RbBottomNavigation(
         items = items, selectedItem = selected, onItemSelectionChanged = { item ->
-            navController.navigate((item as NavRoute).route.routeWithParams) {
+            navController.navigate((item as NavRoute).getRouteUrlWithParams()) {
                 popUpTo(navController.graph.findStartDestination().id) {
                     saveState = true
                 }

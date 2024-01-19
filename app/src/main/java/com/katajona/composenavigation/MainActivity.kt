@@ -123,7 +123,7 @@ fun ListenToNavigation(
             when (it) {
                 is NavigationType.NavigateUp -> navController.navigateUp()
                 is NavigationType.PopUpTo -> navController.popBackStack(
-                    it.target.routeWithParams,
+                    it.target.routeUrlWithParams,
                     it.inclusive
                 )
 

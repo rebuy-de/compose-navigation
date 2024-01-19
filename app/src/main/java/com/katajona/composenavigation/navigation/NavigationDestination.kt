@@ -6,5 +6,5 @@ import com.katajona.composenavigation.navigation.destinations.NavRoute
 data class NavigationDestination(val route: String)
 
 fun NavGraphBuilder.registerScreens() {
-    NavRoute::class.sealedSubclasses.forEach { it.objectInstance?.getScreen(this) }
+    NavRoute::class.sealedSubclasses.forEach { it.objectInstance?.screen?.build(this) }
 }

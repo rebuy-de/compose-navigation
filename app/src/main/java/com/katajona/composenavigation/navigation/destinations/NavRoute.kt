@@ -2,31 +2,38 @@ package com.katajona.composenavigation.navigation.destinations
 
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavDeepLink
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.navDeepLink
 import com.katajona.composenavigation.navigation.NavigationDestination
 
 private const val uri = "deeplink://"
 
 sealed interface NavRoute {
+    val screen: NavGraphView
+    val arguments: List<NamedNavArgument>
+        get() = listOf()
+    val deepLink: List<String>
+        get() = listOf()
+    val absoluteDeepLinks: List<NavDeepLink>
+        get() = deepLink.map { navDeepLink { uriPattern = "$uri${it}" } }
+    private val route: Route
+        get() = Route(this, arguments.map { it.name })
 
-    val route: Route
+    fun getRouteUrlWithParams(): String {
+        return route.routeUrlWithParams
+    }
 
-    fun getArguments(): List<NamedNavArgument> = listOf()
-
-    fun getScreen(navGraph: NavGraphBuilder)
-
-    fun getDeepLinks(): List<NavDeepLink> {
-        return route.deepLinks?.map { navDeepLink { uriPattern = "$uri${it}" } } ?: listOf()
+    fun getRouteWithParams(vararg parameters: Pair<String, String?>): NavigationDestination {
+        return route.getRouteWithParams(*parameters)
     }
 }
 
-class Route(baseRoute: NavRoute, vararg parameters: String, val deepLinks: List<String>? = null) {
-    val routeWithParams: String
-    private val routeName = baseRoute::class.java.canonicalName?.split(".")?.takeLast(2)?.joinToString(".") ?: ""
+class Route(baseRoute: NavRoute, parameters: List<String>) {
+    val routeUrlWithParams: String
+    private val routeName =
+        baseRoute::class.java.canonicalName?.split(".")?.takeLast(2)?.joinToString(".") ?: ""
 
     init {
-        this.routeWithParams = if (parameters.isNotEmpty()) {
+        this.routeUrlWithParams = if (parameters.isNotEmpty()) {
             "$routeName?" + parameters.joinToString("&") { parameter ->
                 "$parameter={$parameter}"
             }

@@ -239,7 +239,7 @@ fun NavGraphBuilder.dialog(
 
 ## Getting it all to work
 
-The last peace of the puzzle is to make our `NavHostController` to react on the actions that arrive when we call the `router.dispatch(navTarget: NavigationType)` function. For this we have to create a launched effect inside the `MainActivity` `setContent` that looks like this:
+The last piece of the puzzle is to make our `NavHostController` to react on the actions that arrive when we call the `router.dispatch(navTarget: NavigationType)` function. For this we have to create a launched effect inside the `MainActivity` `setContent` that looks like this:
 
 ```kotlin
 @Composable

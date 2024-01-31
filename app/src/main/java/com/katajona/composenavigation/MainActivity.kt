@@ -90,7 +90,7 @@ private fun MainContent() {
                 dismissContent = {
                     SnackbarHost(hostState = snackbarHostState) { data ->
                         Snackbar(
-                            actionColor = snackBarStyle.color,
+                            containerColor = snackBarStyle.color,
                             snackbarData = data,
                         )
                     }

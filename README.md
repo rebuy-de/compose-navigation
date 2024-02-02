@@ -1,6 +1,6 @@
 # Compose Navigation with Ease from Everywhere
 
-In this guide, I will explain how I have managed to use Compose Navigation seamlessly throughout our app. From view models and services to screens, and all of that type safe.
+In this guide, I will explain how I have managed to use Compose Navigation seamlessly throughout our app. From view models and services to screens, and all of those type-safe.
 
 If you haven't familiarized yourself with Compose Navigation, it's crucial to read the original [documentation](https://developer.android.com/jetpack/compose/navigation) first.
 
@@ -36,10 +36,10 @@ In the end, only your imagination limits what these actions can achieve. You can
 
 ## Building Our Navigation Graph
 
-Initially, you need to construct a catalog of your screens, which you can utilize in the future for navigating to specific screens. To establish this catalog, I have created the following interface(*I know it is rather an abstract class but since kotlin doesn't allow inheritance from two class I decided to go with an interface, to make it possible to use inheritance for the bottom navigation*) which will help us later identify the routes to register:
+Initially, you need to construct a catalog of your screens, which you can utilize in the future for navigating to specific screens. To establish this catalog, I have created the following interface(*I know it is rather an abstract class but since Kotlin doesn't allow inheritance from two classes I decided to go with an interface, to make it possible to use inheritance for the bottom navigation*) which will help us later identify the routes to register:
 
 ```kotlin
-private const val uri = "deeplink://"
+private const val URI = "deeplink://"
 sealed interface NavRoute {
     val screen: NavGraphView
     val arguments: List<NamedNavArgument>
@@ -62,12 +62,12 @@ sealed interface NavRoute {
 ```
 - The Interface requires a `screen` that will be used to draw the correct screen.
 - `arguments` will help in registering the arguments that belong to the screen on navigation
-- `deepLink` will provide the list of deep-links belonging to the screen, while absoluteDeepLinks provides the whole path with the uri.
-- `getRouteUrlWithParams` will provide the url that is being used to register the screens
-- `getRouteWithParams` will provide the url with all the provided parameters injected into the route
+- `deepLink` will provide the list of deep links belonging to the screen, while absoluteDeepLinks provides the whole path with the uri.
+- `getRouteUrlWithParams` will provide the URL that is being used to register the screens
+- `getRouteWithParams` will provide the URL with all the provided parameters injected into the route
 
 ### NavGraphView
-The `NavGraphView` can be used to register a normal compose view, a dialog or a bottom sheet:
+The `NavGraphView` can be used to register a normal compose view, a dialog, or a bottom sheet:
 ```kotlin
 sealed class NavGraphView {
     data class BottomSheetGraphView(
@@ -116,7 +116,7 @@ sealed class NavGraphView {
     abstract fun build(navGraphBuilder: NavGraphBuilder)
 }
 ```
-*DISCLAIMER: for bottom sheet I use the [library](https://github.com/google/accompanist/issues/1480) library which currently only supports material but doesn't support material3, there is an open [issue](https://github.com/google/accompanist/issues/1480) on the library but it doesn't look like it will be fixed soon*
+*DISCLAIMER: for the bottom sheet, I use the [library](https://github.com/google/accompanist/issues/1480) library which currently only supports material but doesn't support material3, there is an open [issue](https://github.com/google/accompanist/issues/1480) on the library but it doesn't look like it will be fixed soon*
 
 
 ### Implementing all the NavRoutes
@@ -130,7 +130,7 @@ data object Home : NavRoute {
     }
 }
 ```
-Basically, you need to override the `screen` variable getter, which creates your desired composable screen defining the type(simple composable, dialog, bottom sheet), and create a `get()` function that constructs your route.
+Basically, you need to override the `screen` variable getter, which creates your desired composable screen defining the type(simple composable, dialog, bottom sheet), and you need to create a `get()` function that constructs your route.
 
 Concerning scenarios involving arguments, it is imperative to define all the arguments and their respective types. Additionally, you must ensure that these parameters are added into the `arguments` variable and you have to create the corresponding `get()` function with the specified arguments.
 ```kotlin
@@ -166,9 +166,9 @@ data object ExtraData : NavRoute {
 }
 ```
 
-### Deeplinks
+### Deep links
 
-If you also want to make it possible to deeplink into the page then you should add a `deeplinks` parameter to the router like this:
+If you also want to make it possible to deep link into the page then you should add a `deeplinks` parameter to the router like this:
 ```kotlin
 override val deepLink: List<String>
     get() = listOf(
@@ -176,7 +176,7 @@ override val deepLink: List<String>
         "extraData/{$textParam}?amount={$countParam}"
     )
 ```
-After this you will be able to navigate to the the screen using the following deeplinks:
+After this you will be able to navigate to the the screen using the following deep links:
 - `"deeplink://extra?text=Title%20name&count=20"`
 - `"deeplink://extraData/Title%20example?amount=2"`,
 - `"deeplink://extra?count=20"`
@@ -217,7 +217,7 @@ sealed class NavigationType {
 
 ## Registering screens
 
-At one point you the child classes of `NavRoute` have to be registered in the `NavHost` based on the navigation documentation provided by google. For this I decided to use reflection, to make sure nobody ever forgets to register a class.
+At one point the child classes of `NavRoute` have to be registered in the `NavHost` based on the navigation documentation provided by Google. For this I decided to use reflection, to make sure nobody ever forgets to register a class.
 To use reflection you have to add `implementation(kotlin("reflect"))` to our `gradle.kts` file.
 After having reflection in the project you can just create this simple extension function:
 ```kotlin
@@ -226,7 +226,7 @@ fun NavGraphBuilder.registerScreens() {
 }
 ```
 It will go through all of the classes that are implementing `NavRoute` class and call their `getScreen()` function.
-after this you can just call this function in the `NavHost`:
+after this, you can just call this function in the `NavHost`:
 ```kotlin
 NavHost(
     modifier = modifier,
@@ -240,7 +240,7 @@ NavHost(
 
 ## Getting it all to work
 
-The last piece of the puzzle is to make our `NavHostController` react on the actions that arrive when you call the `router.dispatch(navTarget: NavigationType)` function. For this you have to create a `LaunchedEffect` inside the `MainActivity` `setContent` that looks like this:
+The last piece of the puzzle is to make our `NavHostController` react on the actions that arrive when you call the `router.dispatch(navTarget: NavigationType)` function. For this, you have to create a `LaunchedEffect` inside the `MainActivity` `setContent`, you also require an instance from the `Router` which I provided using Koin but you can decide next to any dependency injection tool:
 
 ```kotlin
 @Composable
@@ -300,7 +300,7 @@ fun ListenToNavigation(
 
 ```
 
-## Logic behind creating the route
+## The logic behind creating the route
 ```kotlin
 class Route(baseRoute: NavRoute, vararg parameters: String, val deepLinks: List<String>? = null) {
     val routeWithParams: String
@@ -340,10 +340,10 @@ object SettingsScreens {
     data object Register : NavRoute ..
     ..
 ```
-In the following scenario, the route name for home will be `HomeScreens.Home`. In the case of having arguments, it will be constructed like this: `HomeScreens.ExtraData?text={text}&count={count}`. As mentioned above for this, you have to keep these files when obfuscating. However, I found numerous advantages with this approach. By keeping the files, I can use reflection, eliminating the need to manually register all the screens. Additionally, the route names are distinct. During the development phase, I noticed that it's quite easy to forget to rename the route after using copy-pasting or to forget to register a screen. Therefore, I aimed to build a solution that prevents both cases, opting for reflection and using the class name for the route.
+In the following scenario, the route name for `home screen` will be `HomeScreens.Home`. For the `extra data screen` that has some extra arguments, the route will be constructed like this: `HomeScreens.ExtraData?text={text}&count={count}`. As mentioned above for this, you have to keep these files when obfuscating. However, I found numerous advantages with this approach. By keeping the files, I can use reflection, eliminating the need to register all the screens manually. Additionally, the route names are distinct. During the development phase, I noticed that it's quite easy to forget to rename the route after using copy-pasting or to forget to register a screen. Therefore, I aimed to build a solution that prevents both cases, opting for reflection and using the class name for the route.
 ## Testing
 
-An another advantage of making it possible to navigate from everywhere is testing. Now you are able to unit test the navigation. For this you can use the following mock object:
+Another advantage of making it possible to navigate from everywhere is testing. Now you are able to unit test the navigation. For this, you can use the following mock object:
 ```kotlin
 class RouterMock : Router() {
     var collectedActions: MutableList<NavigationType> = mutableListOf()
@@ -383,7 +383,7 @@ class RouterMock : Router() {
 }
 ```
 
-And then you can test the navigation the following way:
+Then you can test the navigation the following way:
 ```kotlin
 router.assert<NavigationType.NavigateTo> {
     it.target == HomeScreens.ExtraData.get("test", 3)
@@ -392,4 +392,4 @@ router.assert<NavigationType.NavigateUp>()
 ```
 
 ## The project
-The project is available on [github](https://github.com/katajona/compose-navigation) where you can see a bit more about how to get the navigation to  work, how to add a bottom navigation into our project and how to implement the snackbar.
+The project is available on [github](https://github.com/katajona/compose-navigation) where you can see a bit more about how to get the navigation to  work, how to add a bottom navigation into our project, and how to implement the snackbar.

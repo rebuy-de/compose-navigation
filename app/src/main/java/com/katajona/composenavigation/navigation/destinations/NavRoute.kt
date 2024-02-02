@@ -5,7 +5,7 @@ import androidx.navigation.NavDeepLink
 import androidx.navigation.navDeepLink
 import com.katajona.composenavigation.navigation.NavigationDestination
 
-private const val uri = "deeplink://"
+private const val URI = "deeplink://"
 
 sealed interface NavRoute {
     val screen: NavGraphView
@@ -14,7 +14,7 @@ sealed interface NavRoute {
     val deepLink: List<String>
         get() = listOf()
     val absoluteDeepLinks: List<NavDeepLink>
-        get() = deepLink.map { navDeepLink { uriPattern = "$uri${it}" } }
+        get() = deepLink.map { navDeepLink { uriPattern = "$URI${it}" } }
     private val route: Route
         get() = Route(this, arguments.map { it.name })
 
